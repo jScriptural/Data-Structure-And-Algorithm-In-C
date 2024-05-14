@@ -1,2 +1,2 @@
 # Data-Structure-And-Algorithm-In-C
-Implementations of common data structures and Algorithm using the C programming language.
+Implementations of common data structures and Algorithms using the C programming language.
