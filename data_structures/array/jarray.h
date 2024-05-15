@@ -13,8 +13,9 @@ typedef union {
 } Jarrayv;
 
 typedef struct {
-  Jarrayv javal;
+  Jarrayv jv;
   int16_t type;
+  uint32_t index;
 } JAVALUE;
 
 struct __sJa_node;
@@ -54,7 +55,7 @@ Ja_node *jarray_get(Jarray *ja,JAVALUE *value, uint32_t index);
  *
  *
  */
-Jarray *jarray_set(Jarray *ja, void *value,int16_t type,uint32_t index);
+Jarray *jarray_set(Jarray *ja, JAVALUE *value);
 
 
 /*[jarray_len]-
@@ -77,4 +78,33 @@ int jarray_remove(Jarray *ja,JAVALUE *value,uint32_t index);
  *
  */
 int jarray_pop(Jarray *ja, JAVALUE *value);
+
+
+/*[jarray_push]-
+ *
+ * 
+ */
+int jarray_push(Jarray *ja, JAVALUE *value);
+
+
+/*[jarray_shift]-
+ *
+ *
+ */
+int jarray_shift(Jarray *ja, JAVALUE *value);
+
+
+
+/*[jarray_unshift]-
+ *
+ *
+ */
+int jarray_unshift(Jarray *ja, JAVALUE *value);
+
+/*[jarray_concat]-
+ *
+ *
+ */
+Jarray *jarray_concat(Jarray *dst,int n,...);
+
 #endif

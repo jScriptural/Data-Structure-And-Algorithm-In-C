@@ -6,16 +6,26 @@ int main(void)
   Jarray *ja;
   ja = jarray_create();
 
-
-  int v1 = 23;
-  char c = 'A';
-  char *p = "Nigeria";
-
-  jarray_set(ja,"hello, world!",STRING,0);
-  jarray_set(ja,p,STRING,1);
-  jarray_set(ja,&v1,INT,2);
-  jarray_set(ja,&c,CHAR,3);
-  jarray_set(ja,"To C or not to C",STRING,4);
+  JAVALUE jav;
+  jav.jv.pval = "hello, world!";
+  jav.type = STRING;
+  jav.index = 0;
+  jarray_set(ja,&jav);
+  jav.jv.pval = "Nigeria";
+  jav.index = 1;
+  jarray_set(ja,&jav);
+  jav.jv.ival = 23;
+  jav.index = 2;
+  jav.type = INT;
+  jarray_set(ja,&jav);
+  jav.jv.ival = 'A';
+  jav.type = CHAR;
+  jav.index = 3;
+  jarray_set(ja,&jav);
+  jav.jv.pval = "To C or not to C";
+  jav.index = 4;
+  jav.type = STRING;
+  jarray_set(ja,&jav);
 
   printf("length: %u\n",jarray_len(ja));
 
@@ -27,13 +37,13 @@ int main(void)
     switch(jv.type)
     {
       case INT:
-	printf("ival[%u] = %d\n",i,jv.javal.ival);
+	printf("ival[%u] = %d\n",i,jv.jv.ival);
 	break;
       case CHAR:
-	printf("cval[%u] = %c\n",i,jv.javal.ival);
+	printf("cval[%u] = %c\n",i,jv.jv.ival);
 	break;
       case STRING:
-	printf("pval[%u] = %s\n",i,jv.javal.pval);
+	printf("pval[%u] = %s\n",i,jv.jv.pval);
 	break;
       default:
 	break;
@@ -46,9 +56,25 @@ int main(void)
     exit(EXIT_FAILURE);
   }
 
-  jarray_set(ja,"What's popping?",STRING,0);
+  memset(&jav, 0,sizeof(JAVALUE));
+  jav.jv.pval = "What is popping";
+  jav.type = STRING;
+  jav.index = 0;
+  jarray_set(ja,&jav);
   printf("length: %u\n",jarray_len(ja));
 
+
+  memset(&jav, 0,sizeof(JAVALUE));
+  jav.jv.ival = 404;
+  jav.type = INT;
+  if(jarray_push(ja,&jav) < 0)
+    perror("jarray_push");
+
+  jarray_unshift(ja,&jav);
+  jav.jv.ival = 500;
+  jarray_unshift(ja,&jav);
+  jarray_shift(ja,NULL);
+  printf("length: %u\n",jarray_len(ja));
   for(uint32_t i = 0; i < jarray_len(ja); ++i)
   {
     JAVALUE jv;
@@ -57,13 +83,13 @@ int main(void)
     switch(jv.type)
     {
       case INT:
-	printf("ival[%u] = %d\n",i,jv.javal.ival);
+	printf("ival[%u] = %d\n",i,jv.jv.ival);
 	break;
       case CHAR:
-	printf("cval[%u] = %c\n",i,jv.javal.ival);
+	printf("cval[%u] = %c\n",i,jv.jv.ival);
 	break;
       case STRING:
-	printf("pval[%u] = %s\n",i,jv.javal.pval);
+	printf("pval[%u] = %s\n",i,jv.jv.pval);
 	break;
       default:
 	break;

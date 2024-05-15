@@ -15,44 +15,35 @@
 
 
 struct __sJa_node {
-  int16_t _type;
-  uint32_t _index;
-  Jarrayv _val;
+  JAVALUE _val;
   struct __sJa_node *_prev;
   struct __sJa_node *_next;
 };
 
 struct __Jarray {
-  Ja_node *_head;
-  Ja_node *_tail;
-  uint32_t _len; //total nodes in `head`;
+  Ja_node *_head;//point to first node element
+  Ja_node *_tail;//point to last node element
+  uint32_t _len; //total nodes in `head`
 };
 
-static int set_appropriate_value_and_type(Ja_node *jn,void *value,int16_t type)
+static int set_appropriate_value_and_type(Ja_node *jn,JAVALUE *value)
 {
-  switch(type)
+  if(value->type == INT || value->type == CHAR || value->type == STRING)
   {
-    case INT:
-      ;
-    case CHAR:
-      jn->_val.ival = *(int *)value;
-      break;
-    case STRING:
-      jn->_val.pval = (char *)value;
-      break;
-    default:
-      return -1;
+    memmove(&jn->_val,value,sizeof(JAVALUE));
+    return 0;
   }
-  jn->_type = type;
-  return 0;
+
+  return -1;
 }
+
+
 Jarray *jarray_create(void)
 {
   Jarray *_h;
   if((_h = malloc(sizeof(Jarray))) == NULL)
-  {
     return NULL;
-  }
+
   _h->_head = NULL;
   _h->_tail = NULL;
   _h->_len = 0;
@@ -67,17 +58,17 @@ uint32_t jarray_len(const Jarray *ja)
 }
 
 
-Jarray *jarray_set(Jarray *ja,void *value, int16_t type,uint32_t index)
+Jarray *jarray_set(Jarray *ja,JAVALUE *value)
 {
   Ja_node *jn;
 
   /* If the index exist then change the value and the
    * corresponding type field.
    */
-  if(index < ja->_len && index >= 0)
+  if(value->index < ja->_len && value->index >= 0)
   {
-    jn = jarray_get(ja,NULL,index);
-    if(set_appropriate_value_and_type(jn,value,type) < 0)
+    jn = jarray_get(ja,NULL,value->index);
+    if(set_appropriate_value_and_type(jn,value) < 0)
     {
       errno = EINVAL;
       return NULL;
@@ -91,16 +82,16 @@ Jarray *jarray_set(Jarray *ja,void *value, int16_t type,uint32_t index)
     if((jn = malloc(sizeof(Ja_node))) == NULL)
       return NULL;
 
-    if(set_appropriate_value_and_type(jn,value,type) < 0)
+    if(set_appropriate_value_and_type(jn,value) < 0)
     {
       free(jn);
       errno = EINVAL;
       return NULL;
     }
 
+    jn->_next = NULL;
     if(ja->_len == 0)
     {
-      jn->_next = NULL;
       jn->_prev = NULL;
       ja->_head = jn;
       ja->_tail = jn;
@@ -111,10 +102,9 @@ Jarray *jarray_set(Jarray *ja,void *value, int16_t type,uint32_t index)
       tmp = ja->_tail;
       tmp->_next = jn;
       jn->_prev = tmp;
-      jn->_next = NULL;
       ja->_tail = jn;
     }
-    jn->_index = ja->_len++;
+    jn->_val.index = ja->_len++;
   }
 
   return ja;
@@ -129,13 +119,10 @@ Ja_node *jarray_get(Jarray *ja,JAVALUE *value,uint32_t index)
   Ja_node *p;
   for(p = ja->_head; p != NULL; p=p->_next)
   {
-    if(p->_index == index)
+    if(p->_val.index == index)
     {
       if(value != NULL)
-      {
-	memmove(&value->javal,&p->_val,sizeof(Jarrayv));
-	value->type = p->_type;
-      }
+	memmove(value,&p->_val,sizeof(JAVALUE));
       return p;
     }
   }
@@ -162,9 +149,9 @@ int jarray_remove(Jarray *ja,JAVALUE *value,uint32_t index)
   {
     if(value != NULL)
       value = NULL;
+    return -1;
   }
 
-    return -1;
   if(index  == 0)
   {
     ja->_head = target->_next;
@@ -182,14 +169,10 @@ int jarray_remove(Jarray *ja,JAVALUE *value,uint32_t index)
   }
 
   for(next = target->_next; next != NULL; next = next->_next)
-    next->_index = index++;
+    next->_val.index = index++;
 
   if(value != NULL)
-  {
-    memmove(&value->javal,&target->_val,sizeof(Jarrayv));
-    value->type = target->_type;
-  }
-
+    memmove(value,&target->_val,sizeof(JAVALUE));
 
   --ja->_len;
   free(target);
@@ -202,7 +185,7 @@ int jarray_pop(Jarray *ja, JAVALUE *value)
   Ja_node *target;
   if(ja->_len == 0)
   {
-    if(value)
+    if(value != NULL)
       value = NULL;
     return -1;
   }
@@ -221,13 +204,116 @@ int jarray_pop(Jarray *ja, JAVALUE *value)
   }
 
   if(value != NULL)
-  {
-    memmove(&value->javal,&target->_val,sizeof(Jarrayv));
-    value->type = target->_type;
-  }
+    memmove(value,&target->_val,sizeof(JAVALUE));
 
   --ja->_len;
   free(target);
   return 0;
   
 }
+
+
+int jarray_push(Jarray *ja, JAVALUE *value)
+{
+  Ja_node *jn;
+
+  if((jn = malloc(sizeof(Ja_node))) == NULL)
+    return -1;
+
+  if(set_appropriate_value_and_type(jn,value) < 0)
+  {
+    free(jn);
+    return -1;
+  }
+
+  jn->_next = NULL;
+
+  if(ja->_len == 0)
+  {
+    jn->_prev = NULL;
+    ja->_head = jn;
+    ja->_tail = jn;
+  }
+  else
+  {
+    Ja_node *tmp;
+    tmp = ja->_tail;
+    jn->_prev = tmp;
+    tmp->_next = jn;
+    ja->_tail = jn;
+  }
+
+  ja->_tail->_val.index = ja->_len++;
+  value->index = ja->_tail->_val.index; 
+  return 0;
+}
+
+
+int jarray_shift(Jarray *ja, JAVALUE *value)
+{
+  Ja_node *target,*next;
+  uint32_t index = 0;
+
+  if(ja->_len ==  0)
+  {
+    if(value != NULL)
+      value = NULL;
+    return -1;
+  }
+
+  target = ja->_head;
+  if(ja->_len == 1)
+  {
+    ja->_head = NULL;
+    ja->_tail = NULL;
+  }
+  else
+  {
+    ja->_head = target->_next;
+    ja->_head->_prev = NULL;
+  }
+
+  for(next = ja->_head; next != NULL; next=next->_next)
+    next->_val.index = index++;
+
+  --ja->_len;
+  if(value != NULL)
+    memmove(value,&target->_val,sizeof(JAVALUE));
+  return 0;
+}
+
+
+int jarray_unshift(Jarray *ja, JAVALUE *value)
+{
+  Ja_node *jn,*next;
+  uint32_t index = 0;
+
+  if((jn = malloc(sizeof(Ja_node))) == NULL)
+    return -1;
+
+  jn->_prev = NULL;
+  memmove(&jn->_val, value,sizeof(JAVALUE));
+
+  if(ja->_len == 0)
+  {
+    jn->_next = NULL;
+    ja->_head = jn;
+    ja->_tail = jn;
+  }
+  else
+  {
+    Ja_node *tmp;
+    tmp = ja->_head;
+    jn->_next = tmp;
+    tmp->_prev = jn;
+    ja->_head = jn;
+  }
+
+  for(next = ja->_head; next != NULL; next=next->_next)
+    next->_val.index = index++;
+
+  ++ja->_len;
+  return 0;  
+}
+
+
