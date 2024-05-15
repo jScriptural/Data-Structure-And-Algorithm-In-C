@@ -1,0 +1,18 @@
+#swap files
+*.swp
+
+#env
+*.env
+*.local
+*.dotenv
+
+#Object files
+*.out
+*.o
+*.s
+*.exe
+
+#shell scripts
+*.sh
+
+
