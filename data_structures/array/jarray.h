@@ -105,6 +105,5 @@ int jarray_unshift(Jarray *ja, JAVALUE *value);
  *
  *
  */
-Jarray *jarray_concat(Jarray *dst,int n,...);
 
 #endif
