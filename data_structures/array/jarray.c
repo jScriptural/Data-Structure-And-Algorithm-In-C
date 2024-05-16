@@ -4,6 +4,10 @@
  * Created on 14/05/2024.
  *
  *
+ * Modified by: Isonguyo John Sunday
+ * Last modified: 16/05/2024
+ *
+ *
  * Implementing JavaScript's array-like structure in C
  *
  */

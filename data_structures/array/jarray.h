@@ -1,3 +1,17 @@
+/*JARRAY.C
+ *
+ * Author: Isonguyo John Sunday <isongjohn014@gmail.com>
+ * Created on 14/05/2024
+ *
+ *
+ * Modified by: Isonguyo John Sunday <isongjohn014@gmail.com>
+ * Last modified: 16/05/2024
+ *
+ *
+ * Header for jarray.c
+ *
+ */
+
 #ifndef JARRAY_H
 #define JARRAY_H
 
