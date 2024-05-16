@@ -9,7 +9,7 @@
  */
 
 
-
+#include <stdarg.h>
 #include "jarray.h"
 #include <errno.h>
 
@@ -317,3 +317,80 @@ int jarray_unshift(Jarray *ja, JAVALUE *value)
 }
 
 
+Jarray *jarray_concat(Jarray *dst, int count, ...)
+{
+  va_list ap;
+  va_start(ap, count);
+
+  for(int i =0; i < count; ++i)
+  {
+    Ja_node *ja = va_arg(ap, Jarray *)->_head;
+    while(ja != NULL)
+    {
+      jarray_push(dst,&ja->_val);
+      ja = ja->_next;
+    }
+  }
+
+  return dst;
+}
+
+
+Jarray *jarray_reverse(Jarray *ja)
+{
+  Ja_node *p = ja->_head, *q = ja->_tail;
+
+  if(ja->_len < 2)
+    return ja;
+
+  while(p->_val.index < q->_val.index)
+  {
+    JAVALUE tmp = p->_val;
+    uint32_t index = q->_val.index;
+    p->_val = q->_val;
+    p->_val.index = tmp.index;
+    q->_val = tmp;
+    q->_val.index = index;
+    q = q->_prev;
+    p = p->_next;
+  }
+
+  return ja;
+}
+
+
+char *jarray_tostring(Jarray *ja,char str[],size_t *nbytes)
+{
+  size_t maxsz = 1024*1024;
+  char *buf;
+  Ja_node *jn;
+
+  if(ja->_len == 0)
+  {
+    *nbytes = 0;
+    return NULL;
+  }
+
+  if((buf = calloc(maxsz,sizeof(char))) == NULL)
+  {
+    *nbytes = 0;
+    return NULL;
+  }
+
+  for(jn = ja->_head; jn != NULL && strlen(buf) < maxsz; jn = jn->_next)
+  {
+    if(jn->_val.type == STRING)
+      strncat(buf+strlen(buf),jn->_val.jv.pval,maxsz-strlen(buf));
+    else if(jn->_val.type == INT)
+      snprintf(buf+strlen(buf),maxsz - strlen(buf),"%d",jn->_val.jv.ival);
+    else if(jn->_val.type == CHAR)
+      snprintf(buf+strlen(buf),maxsz-strlen(buf),"%c",jn->_val.jv.ival);
+
+  }
+
+  strncpy(str,buf,*nbytes);
+  *nbytes = strlen(buf);
+
+  free(buf);
+  return str;  
+}

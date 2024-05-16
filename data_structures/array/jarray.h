@@ -105,5 +105,20 @@ int jarray_unshift(Jarray *ja, JAVALUE *value);
  *
  *
  */
+Jarray *jarray_concat(Jarray *dst,int count, ...);
+
+
+/*[jarray_reverse]-
+ *
+ *
+ */
+Jarray *jarray_reverse(Jarray *ja);
+
+/*[jarray_tostring]-
+ *
+ *
+ *
+ */
+char *jarray_tostring(Jarray *ja, char str[],size_t *nbytes);
 
 #endif
