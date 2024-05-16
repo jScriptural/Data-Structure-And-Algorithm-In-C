@@ -1,6 +1,20 @@
 #include "jarray.h"
+#include <ctype.h>
 
 void printvalue(Jarray *ja);
+
+JAVALUE jval;
+JAVALUE *mapfn(JAVALUE val)
+{
+  jval.type = val.type;
+  if(val.type == INT)
+  {
+    jval.jv.ival = 3 * val.jv.ival;
+    
+    return &jval;
+  }
+  return &jval;
+}
 
 int main(void)
 {
@@ -25,23 +39,51 @@ int main(void)
   jav.index = 4;
   jarray_set(ja,&jav);
 
-  printvalue(ja);
+ // printvalue(ja);
 
-  Jarray *arr = jarray_slice(ja,1,0);
-
-  char buf[100] = {0};
-  size_t n = 100;
+  Jarray *j = jarray_create();
+  char b[] = "Kingdom";
+  memset(&jav,0,sizeof(JAVALUE));
+  jav.type = CHAR;
+  for(int i =0; i < strlen(b); ++i)
+  {
+    jav.jv.ival = b[i];
+    jarray_push(j,&jav);
+  }
   
-  jarray_tostring(ja,buf,&n);
+  memset(&jav,0,sizeof(JAVALUE));
+  jav.jv.ival = 'g';
+  jav.type = CHAR;
+  if(jarray_indexof(j,&jav) == 0)
+  {
+    printf("val: %c\n",jav.jv.ival);
+    printf("index: %u\n",jav.index);
+  }
+  else
+  {
+    printf("val: %c not found\n",jav.jv.ival);
+  }
+  printf("\n*********************************\n\n");
 
-  printf("ja: %zu: %s\n",n,buf);
-  memset(buf,0,n);
-  jarray_tostring(arr,buf,&n);
-  printf("j: %zu: %s\n",n,buf);
+  Jarray *n = jarray_create();
+  jav.type = INT;
+  for(int i =0; i < 10; ++i)
+  {
+    jav.jv.ival = i;
+    jarray_push(n,&jav);
+  }
 
-  jarray_destroy(arr);
+  Jarray *m = jarray_map(n,mapfn);
 
+  printvalue(n);
+  printvalue(m);
 
+  printf("\n*********************************\n\n");
+  printvalue(jarray_reverse(n));
+
+  jarray_destroy(m);
+  jarray_destroy(ja);
+  jarray_destroy(j);
 }
 
 

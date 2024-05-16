@@ -150,4 +150,16 @@ char *jarray_tostring(Jarray *ja, char str[],size_t *nbytes);
 Jarray *jarray_slice(Jarray *ja, int start, int end);
 
 
+/*[jarray_find]-
+ *
+ *
+ */
+int jarray_indexof(Jarray *ja, JAVALUE *value);
+
+
+/*[jarray_map]-
+ *
+ *
+ */
+Jarray *jarray_map(Jarray *ja, JAVALUE *(*mapfn)(JAVALUE value));
 #endif

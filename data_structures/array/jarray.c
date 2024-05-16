@@ -41,6 +41,31 @@ static int set_appropriate_value_and_type(Ja_node *jn,JAVALUE *value)
   return -1;
 }
 
+static int found(Ja_node *p,JAVALUE *value)
+{
+  switch(value->type)
+  {
+    case STRING: 
+      if(strcmp(p->_val.jv.pval,value->jv.pval) == 0)
+      {
+        memmove(value,&p->_val,sizeof(JAVALUE));
+        return 0;
+      }
+      break;
+    case CHAR:
+      ;
+    case INT:
+      if(p->_val.jv.ival == value->jv.ival)
+      {
+        memmove(value,&p->_val,sizeof(JAVALUE));
+        return 0;
+      }
+      break;
+  }
+
+  return -1;
+}
+
 
 Jarray *jarray_create(void)
 {
@@ -441,6 +466,58 @@ Jarray *jarray_slice(Jarray *ja, int start, int end)
   {
     for(; jn != NULL && jn->_val.index < end; jn = jn->_next)
       jarray_push(newja,&jn->_val);
+  }
+
+  return newja;
+}
+
+
+int jarray_indexof(Jarray *ja, JAVALUE *value)
+{
+  Ja_node *p,*q;
+
+  if(ja->_len == 0)
+    return -1;
+
+  p = ja->_head, q = ja->_tail;
+
+  while(p->_val.index < q->_val.index)
+  {
+    if(p->_val.type == value->type)
+    {
+      if(found(p,value) == 0)
+	return 0;
+    }
+
+    if(q->_val.type == value->type)
+    {
+      if(found(q,value) == 0)
+	return 0;
+    }
+
+    p = p->_next;
+    q = q->_prev;
+
+  }
+
+  if((p->_val.index == q->_val.index) && found(p,value) == 0)
+    return 0;
+
+  return -1;
+
+}
+
+
+Jarray *jarray_map(Jarray *ja, JAVALUE *(*mapfn)(JAVALUE value))
+{
+  Ja_node *jn;
+  Jarray *newja = jarray_create();
+  JAVALUE *retval;
+
+  for(jn = ja->_head; jn != NULL; jn = jn->_next)
+  {
+    retval = mapfn(jn->_val);
+    jarray_push(newja,retval);
   }
 
   return newja;
