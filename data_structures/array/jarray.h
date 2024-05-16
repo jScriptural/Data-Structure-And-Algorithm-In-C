@@ -52,6 +52,13 @@ typedef struct __Jarray Jarray;
 Jarray *jarray_create(void);
 
 
+/*[jarray_destroy]-
+ *
+ *
+ */
+void jarray_destroy(Jarray *ja);
+
+
 /*[jarray_get]- retrieves the node at the specified 
  * `index` from the Jarray.
  * If the node is found and `value` is non-null,
@@ -134,5 +141,13 @@ Jarray *jarray_reverse(Jarray *ja);
  *
  */
 char *jarray_tostring(Jarray *ja, char str[],size_t *nbytes);
+
+
+/*[jarray_slice]-
+ *
+ *
+ */
+Jarray *jarray_slice(Jarray *ja, int start, int end);
+
 
 #endif

@@ -25,26 +25,23 @@ int main(void)
   jav.index = 4;
   jarray_set(ja,&jav);
 
-  for(int i =65; i < 91; ++i)
-  {
-    jav.jv.ival = i;
-    jarray_push(ja,&jav);
-  }
-
-  jav.type = INT;
-  for(int i =100; i < 1000; i += 100)
-  {
-    jav.jv.ival = i;
-    jarray_unshift(ja,&jav);
-  }
   printvalue(ja);
 
-  char buf[200] = {0};
-  size_t n = 200;
+  Jarray *arr = jarray_slice(ja,1,0);
+
+  char buf[100] = {0};
+  size_t n = 100;
   
   jarray_tostring(ja,buf,&n);
 
-  printf("%%: %zu: %s\n",n,buf);
+  printf("ja: %zu: %s\n",n,buf);
+  memset(buf,0,n);
+  jarray_tostring(arr,buf,&n);
+  printf("j: %zu: %s\n",n,buf);
+
+  jarray_destroy(arr);
+
+
 }
 
 

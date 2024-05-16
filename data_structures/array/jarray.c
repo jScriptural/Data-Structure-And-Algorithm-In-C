@@ -56,6 +56,24 @@ Jarray *jarray_create(void)
 }
 
 
+void jarray_destroy(Jarray *ja)
+{
+  Ja_node *curr,*prev;
+  for(prev = ja->_head,curr = prev->_next; prev != NULL; prev = curr,curr = curr->_next)
+  {
+    if(prev !=  NULL)
+    {
+      free(prev);
+      if(curr == NULL)
+	break;
+    }
+  }
+
+  free(ja);
+  ja = NULL;
+}
+
+
 uint32_t jarray_len(const Jarray *ja)
 {
   return ja->_len;
@@ -397,4 +415,33 @@ char *jarray_tostring(Jarray *ja,char str[],size_t *nbytes)
 
   free(buf);
   return str;  
+}
+
+
+Jarray *jarray_slice(Jarray *ja, int start, int end)
+{
+  Ja_node *jn;
+  int toend = start <= end ? 0 : 1;
+  Jarray *newja = jarray_create();
+
+  if(ja->_len == 0 || ja->_len < (start+1))
+    return newja;
+
+  if(start < 0 || end < 0)
+    return newja;
+
+  jn = jarray_get(ja,NULL,start);
+
+  if(toend)
+  {
+    for(; jn != NULL; jn = jn->_next)
+      jarray_push(newja,&jn->_val);
+  }
+  else 
+  {
+    for(; jn != NULL && jn->_val.index < end; jn = jn->_next)
+      jarray_push(newja,&jn->_val);
+  }
+
+  return newja;
 }
