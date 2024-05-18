@@ -5,7 +5,7 @@
  *
  *
  * Modified by: Isonguyo John Sunday
- * Last modified: 16/05/2024
+ * Last modified: 18/05/2024
  *
  *
  * Header for jarray.c
@@ -39,9 +39,9 @@ struct __Jarray;
 typedef struct __Jarray Jarray;
 
 /* POSSIBLE VALUES FOR TYPE */
-#define INT 0
-#define CHAR 1 
-#define STRING 2
+#define JA_INT 0
+#define JA_CHAR 1 
+#define JA_STRING 2
 
 
 
@@ -56,7 +56,7 @@ Jarray *jarray_create(void);
  *
  *
  */
-void jarray_destroy(Jarray *ja);
+void jarray_destroy(Jarray **ja);
 
 
 /*[jarray_get]- retrieves the node at the specified 

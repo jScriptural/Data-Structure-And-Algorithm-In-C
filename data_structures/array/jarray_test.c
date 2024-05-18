@@ -7,7 +7,7 @@ JAVALUE jval;
 JAVALUE *mapfn(JAVALUE val)
 {
   jval.type = val.type;
-  if(val.type == INT)
+  if(val.type == JA_INT)
   {
     jval.jv.ival = 3 * val.jv.ival;
     
@@ -23,7 +23,7 @@ int main(void)
 
   JAVALUE jav;
   jav.jv.ival = 'h';
-  jav.type = CHAR;
+  jav.type = JA_CHAR;
   jav.index = 0;
   jarray_set(ja,&jav);
   jav.jv.ival = 'e';
@@ -44,7 +44,7 @@ int main(void)
   Jarray *j = jarray_create();
   char b[] = "Kingdom";
   memset(&jav,0,sizeof(JAVALUE));
-  jav.type = CHAR;
+  jav.type = JA_CHAR;
   for(int i =0; i < strlen(b); ++i)
   {
     jav.jv.ival = b[i];
@@ -53,7 +53,7 @@ int main(void)
   
   memset(&jav,0,sizeof(JAVALUE));
   jav.jv.ival = 'g';
-  jav.type = CHAR;
+  jav.type = JA_CHAR;
   if(jarray_indexof(j,&jav) == 0)
   {
     printf("val: %c\n",jav.jv.ival);
@@ -66,7 +66,7 @@ int main(void)
   printf("\n*********************************\n\n");
 
   Jarray *n = jarray_create();
-  jav.type = INT;
+  jav.type = JA_INT;
   for(int i =0; i < 10; ++i)
   {
     jav.jv.ival = i;
@@ -81,9 +81,9 @@ int main(void)
   printf("\n*********************************\n\n");
   printvalue(jarray_reverse(n));
 
-  jarray_destroy(m);
-  jarray_destroy(ja);
-  jarray_destroy(j);
+  jarray_destroy(&m);
+  jarray_destroy(&ja);
+  jarray_destroy(&j);
 }
 
 
@@ -99,13 +99,13 @@ void printvalue(Jarray *ja)
       break;
     switch(jv.type)
     {
-      case INT:
+      case JA_INT:
 	printf("ival[%u] = %d\n",i,jv.jv.ival);
 	break;
-      case CHAR:
+      case JA_CHAR:
 	printf("cval[%u] = %c\n",i,jv.jv.ival);
 	break;
-      case STRING:
+      case JA_STRING:
 	printf("pval[%u] = %s\n",i,jv.jv.pval);
 	break;
       default:

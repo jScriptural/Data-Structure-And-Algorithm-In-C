@@ -5,7 +5,7 @@
  *
  *
  * Modified by: Isonguyo John Sunday
- * Last modified: 16/05/2024
+ * Last modified: 18/05/2024
  *
  *
  * Implementing JavaScript's array-like structure in C
@@ -32,7 +32,7 @@ struct __Jarray {
 
 static int set_appropriate_value_and_type(Ja_node *jn,JAVALUE *value)
 {
-  if(value->type == INT || value->type == CHAR || value->type == STRING)
+  if(value->type == JA_INT || value->type == JA_CHAR || value->type == JA_STRING)
   {
     memmove(&jn->_val,value,sizeof(JAVALUE));
     return 0;
@@ -45,16 +45,16 @@ static int found(Ja_node *p,JAVALUE *value)
 {
   switch(value->type)
   {
-    case STRING: 
+    case JA_STRING: 
       if(strcmp(p->_val.jv.pval,value->jv.pval) == 0)
       {
         memmove(value,&p->_val,sizeof(JAVALUE));
         return 0;
       }
       break;
-    case CHAR:
+    case JA_CHAR:
       ;
-    case INT:
+    case JA_INT:
       if(p->_val.jv.ival == value->jv.ival)
       {
         memmove(value,&p->_val,sizeof(JAVALUE));
@@ -81,10 +81,10 @@ Jarray *jarray_create(void)
 }
 
 
-void jarray_destroy(Jarray *ja)
+void jarray_destroy(Jarray **ja)
 {
   Ja_node *curr,*prev;
-  for(prev = ja->_head,curr = prev->_next; prev != NULL; prev = curr,curr = curr->_next)
+  for(prev = (*ja)->_head,curr = prev->_next; prev != NULL; prev = curr,curr = curr->_next)
   {
     if(prev !=  NULL)
     {
@@ -94,8 +94,8 @@ void jarray_destroy(Jarray *ja)
     }
   }
 
-  free(ja);
-  ja = NULL;
+  free(*ja);
+  *ja = NULL;
 }
 
 
@@ -191,7 +191,6 @@ int jarray_remove(Jarray *ja,JAVALUE *value,uint32_t index)
     return -1;
   }
 
- // printf("r2\n");
   if((target = jarray_get(ja,NULL,index)) == NULL)
   {
     if(value != NULL)
@@ -426,11 +425,11 @@ char *jarray_tostring(Jarray *ja,char str[],size_t *nbytes)
 
   for(jn = ja->_head; jn != NULL && strlen(buf) < maxsz; jn = jn->_next)
   {
-    if(jn->_val.type == STRING)
+    if(jn->_val.type == JA_STRING)
       strncat(buf+strlen(buf),jn->_val.jv.pval,maxsz-strlen(buf));
-    else if(jn->_val.type == INT)
+    else if(jn->_val.type == JA_INT)
       snprintf(buf+strlen(buf),maxsz - strlen(buf),"%d",jn->_val.jv.ival);
-    else if(jn->_val.type == CHAR)
+    else if(jn->_val.type == JA_CHAR)
       snprintf(buf+strlen(buf),maxsz-strlen(buf),"%c",jn->_val.jv.ival);
 
   }
