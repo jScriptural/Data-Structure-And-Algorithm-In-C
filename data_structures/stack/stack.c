@@ -6,7 +6,7 @@
  *
  *
  * Modified by: Isonguyo John Sunday
- * Last Modified: 18/05/2024
+ * Last Modified: 19/05/2024
  *
  */
 
@@ -104,13 +104,19 @@ int stack_pop(Stack *sk,SDATA *data)
 
 void stack_clear(Stack *sk)
 {
-  Stacknode  *sn;
+  Stacknode  *curr,*prev;
   if(sk->_size == 0)
     return;
 
-  for(sn = sk->_top; sn != NULL; sn = sn->_next)
-    free(sn);
+  curr = sk->_top;
+  prev = NULL;
 
+  while(curr != NULL)
+  {
+    prev = curr;
+    curr = curr->_next;
+    free(prev);
+  }
 
   sk->_top = NULL;
   sk->_size = 0;

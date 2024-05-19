@@ -5,7 +5,7 @@
  *
  *
  * Modified by: Isonguyo John Sunday
- * Last modified: 18/05/2024
+ * Last modified: 19/05/2024
  *
  *
  * Implementing JavaScript's array-like structure in C
@@ -84,14 +84,15 @@ Jarray *jarray_create(void)
 void jarray_destroy(Jarray **ja)
 {
   Ja_node *curr,*prev;
-  for(prev = (*ja)->_head,curr = prev->_next; prev != NULL; prev = curr,curr = curr->_next)
+
+  curr = (*ja)->_head;
+  prev = NULL;
+
+  while(curr != NULL)
   {
-    if(prev !=  NULL)
-    {
-      free(prev);
-      if(curr == NULL)
-	break;
-    }
+    prev = curr;
+    curr = curr->_next;
+    free(prev);
   }
 
   free(*ja);
